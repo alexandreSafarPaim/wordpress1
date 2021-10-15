@@ -1,0 +1,29 @@
+# For more information: https://laravel.com/docs/sail
+version: '3'
+services:
+    wordpress:
+        image: wordpress
+        environment:
+            WORDPRESS_DB_HOST: mysqldefault
+            WORDPRESS_DB_USER: wordpress1
+            WORDPRESS_DB_PASSWORD: wordpress1
+            WORDPRESS_DB_NAME: wordpress1
+        volumes:
+            - './wordpress:/var/www/html'
+        labels:
+            - traefik.enable=true
+            - traefik.docker.network=traefik
+            - traefik.http.services.wordpress1.loadbalancer.server.port=80
+            - traefik.http.services.wordpress1.loadbalancer.passHostHeader=true
+            - traefik.http.middlewares.wordpress1_https.redirectscheme.scheme=https
+            - traefik.http.routers.wordpress1.entrypoints=web
+            - traefik.http.routers.wordpress1.rule=Host(`wordpress1.estudo.local.dev`)
+            - traefik.http.routers.wordpress1.middlewares=wordpress1_https@docker
+            - traefik.http.routers.wordpress1_https.rule=Host(`wordpress1.estudo.local.dev`)
+            - traefik.http.routers.wordpress1_https.tls=true
+            - traefik.http.routers.wordpress1_https.entrypoints=websecure
+        networks:
+            - traefik
+networks:
+    traefik:
+        external: true        # COMENTAR ESTA LINHA SE NÃO USAR O TRAEFIK
